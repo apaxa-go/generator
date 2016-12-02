@@ -5,7 +5,11 @@ go:
 env:
   - PROJECT=replacer
   - PROJECT=foo
+before_install:
+  - go get github.com/mattn/goveralls
 install:
   - go get -t -v ./$PROJECT/...
 before_script:
   - cd $PROJECT
+script:
+  - $HOME/gopath/bin/goveralls -service travis-ci
