@@ -3,7 +3,9 @@ package replacer
 import (
 	"github.com/apaxa-go/helper/pathh/filepathh"
 	"github.com/apaxa-go/helper/stringsh"
+	"go/format"
 	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -215,6 +217,13 @@ func Produce(fn string) {
 	}
 
 	data = comment + prefix + delim + generated + "\n\n" + produceStr(data) // Use double new-line to avoid godoc from parsing generated mark
+
+	// Format output
+	if fData, err := format.Source([]byte(data)); err == nil {
+		data = string(fData)
+	} else {
+		log.Print("Unable to format result source file: ", err)
+	}
 
 	if err := ioutil.WriteFile(targetFn, []byte(data), 0777); err != nil {
 		panic("Unable to write " + targetFn + " : " + err.Error())
