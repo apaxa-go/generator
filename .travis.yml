@@ -4,8 +4,6 @@ go:
   - tip
 env:
   - PROJECT=replacer
-  - PROJECT=foo
-  - PROJECT=bar
 before_install:
   - go get github.com/mattn/goveralls
 install:
