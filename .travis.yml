@@ -6,5 +6,5 @@ go:
 env:
   - PROJECT=replacer
   - PROJECT=foo
-before-script:
+before_script:
   - cd $project
