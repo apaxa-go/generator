@@ -1,0 +1,10 @@
+language: go
+sudo: false
+go:
+  - 1.5
+  - master
+env:
+  - PROJECT=replacer
+  - PROJECT=foo
+before-script:
+  - cd $project
