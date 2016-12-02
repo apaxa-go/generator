@@ -34,6 +34,8 @@
 // Replacer will panic if it tries to overwrite file without this directive.
 // Also additional empty line added after described directive. This for avoiding show this directive in godoc and does not checked on overwrite by Replacer.
 //
+// Before saving generated source to file it will be formatted via standard GoLang method. If formatting return error then source will be saved as-is.
+//
 // Remember which files need to apply Replacer is annoying.
 // Replacer can be simply used with go:generate -just add this line in base file "//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE".
 // Usually it is not required to apply Replacer to files it produce so add line "//replacer:ignore" before go:generate directive.
@@ -74,7 +76,6 @@
 // 	//replacer:generated-file
 //
 // 	package math
-//
 //
 // 	func MinUint(a, b uint) uint {
 // 		if a <= b {
