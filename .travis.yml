@@ -5,5 +5,7 @@ go:
 env:
   - PROJECT=replacer
   - PROJECT=foo
+install:
+  - go get -t -v ./$PROJECT/...
 before_script:
   - cd $PROJECT
