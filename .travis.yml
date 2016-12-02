@@ -1,10 +1,9 @@
 language: go
 sudo: false
 go:
-  - 1.5
-  - master
+  - tip
 env:
   - PROJECT=replacer
   - PROJECT=foo
 before_script:
-  - cd $project
+  - cd $PROJECT
