@@ -3,7 +3,7 @@
 // Replacer is not as much flexible as original sed but have some language specifics.
 // Technically Replacer does not require operated files to be a GoLang source files.
 //
-// Replacer accept single file name as parameter. This file will be split to blocks, each block will be proceed, result of proceed will be concatenated and saved to other file.
+// Replacer usage is "replacer [--] <source-file-name> [<target-file-name>]". Source file will be split into blocks, each block will be proceed, result of proceed will be concatenated and saved to target file.
 // There are 3 types of blocks: "ignore", "replace" and "noreplace". Each block start from some line and end with some line (not from/to middle of line).
 // Block starts from line after the line(s) with block directive and ends at next block directives or at EOF.
 // Block directive if string of form "//replacer:<block-type>" (example "//replacer:noreplace").
@@ -23,7 +23,7 @@
 // Lines in original file before first block directive treats as belong to "noreplace" block (as if line "//replcaer:noreplace" will be prepend original file).
 //
 // Result of file proceed saved to result file.
-// Name of result file computed in following way:
+// If target file name is not specified, then it computed in the following way:
 // if base name (name without extensions) ended with "_test" then result name will be "<base-name-without-_test>-gen_test<original-extension>",
 // otherwise result name will be "<base-name>-gen<original-extension>".
 // Example:
@@ -42,7 +42,7 @@
 // As the result it is possible to just run "go generate ./..." to apply Replacer to all required files.
 //
 // Note: "go run" does not support "--" as delimiter between its own arguments and arguments to program it runs, but without "--" "go run" treats $GOFILE as part of binary to run.
-// To avoid this Replacer accept form usage: "<replacer> <source-file>" (for manual usage) and "<replacer> -- <source-file>" (for using with "go run").
+// To avoid this Replacer accept two form usage: "replacer <source-file-name> [<target-file-name>]" (for manual usage) and "replacer -- <source-file-name> [<target-file-name>]" (for using with "go run").
 //
 // Quick guide
 //
@@ -123,12 +123,30 @@ import "github.com/apaxa-go/generator/replacer/internal"
 // //replacer:new int32	Int32
 
 func main() {
-	switch len(os.Args) {
-	case 2:
-		replacer.Produce(os.Args[1])
-	case 3:
-		replacer.Produce(os.Args[2])
-	default:
-		panic("Bad usage. Pass 1 or 2 arguments. The last one should be path to file, estimated arguments will be ignored.")
+	const usage = "Bad usage. Usage: \"replacer [--] source-file-name [target-file-name]\""
+	const fakeArg = "--"
+
+	l := len(os.Args)
+	if l < 2 {
+		panic(usage)
 	}
+
+	var sourceFn, targetFn string
+	{
+		argShift := 1 // os.Args[0] is always skipped as it has special meaning.
+		if os.Args[1] == fakeArg {
+			argShift++ // Skip first argument if it is "--".
+		}
+		switch l { // We need at least 1 effective argument (source file name), but no more that 2 (second is target file name and is optional).
+		case argShift + 1:
+			sourceFn = os.Args[argShift]
+		case argShift + 2:
+			sourceFn = os.Args[argShift]
+			targetFn = os.Args[argShift+1]
+		default:
+			panic(usage)
+		}
+	}
+
+	replacer.Produce(sourceFn, targetFn)
 }

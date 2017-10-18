@@ -193,9 +193,8 @@ func isOverwriteSafe(fn string) bool {
 }
 
 // Produce does all work )
-func Produce(fn string) {
-	var targetFn string
-	{
+func Produce(fn string, targetFn string) {
+	if targetFn == "" {
 		base, ext := filepathh.ExtractExt(fn)
 		optionalSuffix := "_test"
 		if strings.HasSuffix(base, optionalSuffix) {
