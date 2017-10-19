@@ -16,6 +16,7 @@
 // First additional directive should be "old" directive: "//replacer:old <space-separated-list-of-what-to-replace>".
 // After "old" directive should be one or more "new" directives: "//replacer:new <space-separated-list-of-with-what-replace>".
 // Number of elements in each "old" and "new" in same block must be equal.
+// It is also valid to qoute or double-quote "old" and "new" elements (see github.com/apaxa-go/helper/stringsh.FieldsQuoted for details).
 // On block produce each non overlapping instance of "old" elements in block will be replaced with the corresponding elements of the first "new" directive.
 // After that the same will be happened with second "new" directive and so on.
 // Produce of "replace" block is concatenation of all n replacement (where n - is number of "new" directives).

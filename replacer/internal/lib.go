@@ -24,8 +24,6 @@ const (
 const maxFileSizeForOverwrite = 1024 * 1024 // 1 Mb
 const fileSuffix = "-gen"
 
-type parseMode string
-
 // Block types ("// Replacer.<value>")
 const (
 	ignore    = "ignore"
@@ -120,15 +118,11 @@ func splitToBlocks(data string) []block {
 	blocks := make([]block, 0, 10)
 	origLen := len(data)
 	for len(data) > 0 {
-		//log.Println(origLen-len(data))
 		var name, value string
 		var ok bool
 		if data, name, value, ok = extractDirective(data, ""); len(name) == 0 || len(value) != 0 || !ok {
-			//log.Println(data,name,value,ok)
 			panic("Bad line starting from " + strconv.FormatInt(int64(origLen-len(data)), 10) + " byte: '" + stringsh.GetFirstLine(data) + "'")
 		}
-
-		//log.Println(data,name,value,ok)
 
 		switch name {
 		case ignore:
@@ -144,11 +138,11 @@ func splitToBlocks(data string) []block {
 			if data, _, value, ok = extractDirective(data, oldValue); !ok {
 				panic("Replacement block should have old value in the line after block definition.")
 			}
-			b.old = strings.Fields(value)
+			b.old = stringsh.FieldsQuoted(value)
 			for data, _, value, ok = extractDirective(data, newValue); ok; data, _, value, ok = extractDirective(data, newValue) {
-				tmp := strings.Fields(value)
+				tmp := stringsh.FieldsQuoted(value)
 				if len(tmp) != len(b.old) {
-					panic("new values should be exactly the same number as old")
+					panic("number of new values must be exactly the same as number af old")
 				}
 				b.new = append(b.new, tmp)
 			}
@@ -172,6 +166,7 @@ func produceStr(data string) string {
 	return r
 }
 
+// TODO safe-overwriting-related function must be moved to separate lib
 func isOverwriteSafe(fn string) bool {
 	if stat, err := os.Stat(fn); os.IsNotExist(err) {
 		return true
@@ -193,9 +188,9 @@ func isOverwriteSafe(fn string) bool {
 }
 
 // Produce does all work )
-func Produce(fn string, targetFn string) {
+func Produce(sourceFn string, targetFn string) {
 	if targetFn == "" {
-		base, ext := filepathh.ExtractExt(fn)
+		base, ext := filepathh.ExtractExt(sourceFn)
 		optionalSuffix := "_test"
 		if strings.HasSuffix(base, optionalSuffix) {
 			base = base[:len(base)-len(optionalSuffix)]
@@ -209,8 +204,8 @@ func Produce(fn string, targetFn string) {
 	}
 
 	var data string
-	if tmp, err := ioutil.ReadFile(fn); err != nil {
-		panic("Unable to read file " + fn + " : " + err.Error())
+	if tmp, err := ioutil.ReadFile(sourceFn); err != nil {
+		panic("Unable to read file " + sourceFn + " : " + err.Error())
 	} else {
 		data = comment + prefix + delim + noreplace + "\n" + string(tmp)
 	}
