@@ -182,7 +182,21 @@ func isOverwriteSafe(fn string) bool {
 	if err != nil {
 		return false
 	}
-	_, _, _, ok := extractDirective(string(tmp), generated)
+	stmp := string(tmp)
+
+	// Skip comments and empty lines at the beginning of file (Copyright)
+	{
+		for tstmp := strings.TrimLeft(stmp, " \t\r"); strings.HasPrefix(tstmp, "\n") || (strings.HasPrefix(tstmp, comment) && !strings.HasPrefix(tstmp, comment+prefix+delim)); tstmp = strings.TrimLeft(stmp, " \t\r") {
+			pos := strings.Index(stmp, "\n")
+			if pos == -1 {
+				stmp = stmp[len(stmp):]
+				break
+			}
+			stmp = stmp[pos+1:]
+		}
+	}
+
+	_, _, _, ok := extractDirective(stmp, generated)
 	return ok
 
 }
